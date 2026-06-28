@@ -1,5 +1,16 @@
 # 🎁 Dev Wrapped
 
+<p align="center">
+  <a href="https://dev-wrapped-eight.vercel.app">
+    <img src="https://dev-wrapped-eight.vercel.app/api/card/HMAKT99?theme=midnight" alt="Dev Wrapped — example card" width="640">
+  </a>
+</p>
+
+<p align="center">
+  <b>▶ Try it live: <a href="https://dev-wrapped-eight.vercel.app">dev-wrapped-eight.vercel.app</a></b><br>
+  Type any GitHub <b>username</b> or <b>owner/repo</b> — get a shareable card in seconds.
+</p>
+
 Your year in code — wrapped. Point it at a git repo (or your GitHub account) and
 get a gorgeous, animated, **Spotify-Wrapped-style** year-in-review of your coding:
 your commit count, your longest streak, the hour you secretly do your best work,
@@ -22,7 +33,24 @@ offline) plus shareable PNG cards sized for stories and link previews.
   `editorial`, `bubblegum`, `sunset`) so it never looks like generic output.
 - **Made to share.** Every run ends on a flex card built for a screenshot.
 
-## 🚀 Quick start
+## 📌 Add it to your README
+
+Drop a live card into any README — it refreshes automatically (no build step):
+
+**Your profile** — replace `USERNAME`:
+```md
+[![Dev Wrapped](https://dev-wrapped-eight.vercel.app/api/card/USERNAME?theme=midnight)](https://dev-wrapped-eight.vercel.app/u/USERNAME)
+```
+
+**Any repo** — replace `OWNER/REPO`:
+```md
+[![Dev Wrapped](https://dev-wrapped-eight.vercel.app/api/card/repo/OWNER/REPO?theme=synthwave)](https://dev-wrapped-eight.vercel.app/r/OWNER/REPO)
+```
+
+Swap `?theme=` for any of: `midnight` · `synthwave` · `terminal` · `editorial` · `bubblegum` · `sunset`.
+Prefer a committed PNG that auto-refreshes on a schedule? Use the [GitHub Action](action/README.md).
+
+## 🚀 Quick start (CLI / Claude Code skill)
 
 ```bash
 # 1. From inside any git repo — extract your stats (last 365 days, your commits)
