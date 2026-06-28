@@ -1,0 +1,80 @@
+name: "Dev Wrapped"
+description: "Generate a Dev Wrapped card for a GitHub user, commit the image, and keep it in your README."
+author: "Dev Wrapped"
+branding:
+  icon: "gift"
+  color: "purple"
+
+inputs:
+  username:
+    description: "GitHub username to wrap. Defaults to the repo owner."
+    required: false
+    default: ${{ github.repository_owner }}
+  theme:
+    description: "midnight | synthwave | terminal | editorial | bubblegum | sunset"
+    required: false
+    default: "midnight"
+  window:
+    description: "A year like 2025, or empty for the last 12 months."
+    required: false
+    default: ""
+  service-url:
+    description: "Base URL of the Dev Wrapped service."
+    required: false
+    default: "https://dev-wrapped-eight.vercel.app"
+  output:
+    description: "Path to write the card PNG."
+    required: false
+    default: ".github/dev-wrapped.png"
+  readme:
+    description: "README file to update (between DEV-WRAPPED markers). Set to '' to skip."
+    required: false
+    default: "README.md"
+  commit:
+    description: "Commit and push changes."
+    required: false
+    default: "true"
+  commit-message:
+    description: "Commit message."
+    required: false
+    default: "chore: refresh Dev Wrapped card"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download card
+      shell: bash
+      run: |
+        set -euo pipefail
+        Q="theme=${{ inputs.theme }}"
+        if [ -n "${{ inputs.window }}" ]; then Q="$Q&window=${{ inputs.window }}"; fi
+        URL="${{ inputs.service-url }}/api/card/${{ inputs.username }}?$Q"
+        echo "Fetching $URL"
+        mkdir -p "$(dirname "${{ inputs.output }}")"
+        curl -fsSL "$URL" -o "${{ inputs.output }}"
+        echo "Wrote ${{ inputs.output }}"
+
+    - name: Update README
+      if: ${{ inputs.readme != '' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        node "${{ github.action_path }}/update-readme.mjs" \
+          --readme "${{ inputs.readme }}" \
+          --image "${{ inputs.output }}" \
+          --link "${{ inputs.service-url }}/u/${{ inputs.username }}?theme=${{ inputs.theme }}"
+
+    - name: Commit
+      if: ${{ inputs.commit == 'true' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add "${{ inputs.output }}" ${{ inputs.readme != '' && inputs.readme || '' }}
+        if git diff --staged --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "${{ inputs.commit-message }}"
+          git push
+        fi

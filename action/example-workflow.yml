@@ -1,0 +1,27 @@
+# Dev Wrapped — example workflow.
+# Copy this file into your repo at: .github/workflows/dev-wrapped.yml
+# It refreshes your Dev Wrapped card weekly and keeps it in your README
+# (between <!-- DEV-WRAPPED:START --> and <!-- DEV-WRAPPED:END --> markers).
+
+name: Dev Wrapped
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # every Monday 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  wrapped:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: HMAKT99/Dev_Wrapped/action@main
+        with:
+          username: ${{ github.repository_owner }}
+          theme: midnight
+          # window: "2025"      # optional: a specific year
+          # output: .github/dev-wrapped.png
+          # readme: README.md   # set to "" to skip README editing
