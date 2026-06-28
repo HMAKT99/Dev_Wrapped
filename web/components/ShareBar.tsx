@@ -68,7 +68,7 @@ export function ShareBar({
         <div
           className="mono"
           style={{
-            fontSize: 12, background: "rgba(255,255,255,0.04)", border: "1px solid var(--line)",
+            fontSize: 12, background: "var(--surface)", border: "1px solid var(--line)",
             borderRadius: 10, padding: 12, wordBreak: "break-all", color: "var(--muted)",
           }}
         >
