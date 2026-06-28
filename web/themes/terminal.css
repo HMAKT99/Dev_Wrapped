@@ -1,0 +1,10 @@
+/* Terminal — phosphor green on black, monospace everything. For hackers. */
+:root{
+  --bg:#02060a; --bg2:#0a1410; --fg:#c6ffd0; --muted:#5f9c72;
+  --accent:#36ff7a; --accent2:#9dff5e;
+  --display:ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace;
+  --body:var(--display);
+  --grain:.3;
+}
+.kicker,.l{ text-transform:none !important; }
+.headline,.persona-title{ letter-spacing:-.01em; }

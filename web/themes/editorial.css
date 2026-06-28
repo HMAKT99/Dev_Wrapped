@@ -1,0 +1,11 @@
+/* Editorial — light cream paper, near-black serif ink, restrained crimson accent. Tasteful. */
+:root{
+  --bg:#f6f1e7; --bg2:#ece4d3; --fg:#1a1714; --muted:#7d7468;
+  --accent:#c0392b; --accent2:#8a6d3b;
+  --display:Georgia,"Times New Roman",Cambria,serif;
+  --body:Georgia,"Times New Roman",serif;
+  --grain:0;
+}
+.kicker{ color:var(--accent); }
+.bar,.hbar .fill{ background:var(--accent); }
+.card{ box-shadow:0 20px 60px rgba(0,0,0,.12); border-color:rgba(0,0,0,.08); }

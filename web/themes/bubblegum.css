@@ -1,0 +1,10 @@
+/* Bubblegum — bright Y2K candy, hot pink + sky blue on off-white. Playful. */
+:root{
+  --bg:#fff5fb; --bg2:#ffe3f3; --fg:#2a0f24; --muted:#9a6c8c;
+  --accent:#ff4fa3; --accent2:#3fa9ff;
+  --display:"Comic Sans MS","Trebuchet MS",-apple-system,sans-serif;
+  --body:"Trebuchet MS",-apple-system,sans-serif;
+  --grain:0;
+}
+.bar,.hbar .fill{ background:linear-gradient(180deg,var(--accent),var(--accent2)); }
+.pill,.words .w{ box-shadow:0 4px 0 rgba(255,79,163,.25); }

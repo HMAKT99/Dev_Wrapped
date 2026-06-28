@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Dev Wrapped</title>
+<!-- DEV-WRAPPED: fully self-contained. No external requests, no CDNs, no fonts fetched. -->
+<style id="theme">
+/* __THEME_CSS__ */
+:root{
+  --bg:#0b0b12; --bg2:#15151f; --fg:#f5f5fa; --muted:#9aa0b5;
+  --accent:#7c5cff; --accent2:#22d3ee; --display: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; --body: var(--display);
+  --grain:0;
+}
+</style>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:var(--body); -webkit-font-smoothing:antialiased;
+  overflow:hidden; position:fixed; inset:0;
+}
+#stage{position:absolute; inset:0; overflow:hidden}
+.scene{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center;
+  padding:clamp(24px,6vw,80px); gap:clamp(12px,2.5vh,28px);
+  opacity:0; transform:translateY(18px) scale(.99);
+  transition:opacity .5s ease, transform .6s cubic-bezier(.2,.7,.2,1);
+  pointer-events:none; background:var(--bg);
+}
+.scene.active{opacity:1; transform:none; pointer-events:auto}
+.scene::after{ /* optional grain/vignette hook */
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 0%, transparent 55%, rgba(0,0,0,.35) 100%);
+  opacity:var(--grain);
+}
+.kicker{font-size:clamp(12px,1.6vh,16px); letter-spacing:.28em; text-transform:uppercase; color:var(--muted)}
+.headline{font-family:var(--display); font-weight:800; line-height:1.02; font-size:clamp(28px,7vh,68px); max-width:18ch}
+.huge{font-family:var(--display); font-weight:900; line-height:.9; font-size:clamp(72px,22vh,220px);
+  background:linear-gradient(120deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.sub{font-size:clamp(15px,2.4vh,24px); color:var(--muted); max-width:26ch}
+.accent{color:var(--accent)}
+.pill{display:inline-block; padding:.35em .9em; border-radius:999px; background:var(--bg2); color:var(--fg); font-weight:600; font-size:clamp(13px,1.8vh,18px)}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center}
+
+/* bar charts (hand-rolled, no libs) */
+.bars{display:flex; align-items:flex-end; gap:clamp(2px,.8vw,8px); height:32vh; width:min(560px,86vw)}
+.bar{flex:1; background:linear-gradient(180deg,var(--accent),var(--accent2)); border-radius:6px 6px 2px 2px; height:0; transition:height .9s cubic-bezier(.2,.8,.2,1); min-height:2px; opacity:.92}
+.bar.dim{background:var(--bg2)}
+.barlabels{display:flex; gap:clamp(2px,.8vw,8px); width:min(560px,86vw); margin-top:8px}
+.barlabels span{flex:1; text-align:center; font-size:11px; color:var(--muted)}
+
+/* horizontal lang bars */
+.hbars{display:flex; flex-direction:column; gap:12px; width:min(560px,86vw)}
+.hbar{display:grid; grid-template-columns:9ch 1fr auto; gap:12px; align-items:center; font-size:clamp(13px,1.9vh,18px)}
+.hbar .track{height:14px; background:var(--bg2); border-radius:999px; overflow:hidden}
+.hbar .fill{height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.hbar .pc{color:var(--muted); font-variant-numeric:tabular-nums}
+
+.list{display:flex; flex-direction:column; gap:8px; width:min(560px,86vw); text-align:left}
+.list .li{display:flex; justify-content:space-between; gap:12px; padding:10px 14px; background:var(--bg2); border-radius:10px; font-size:clamp(13px,1.9vh,17px)}
+.list .li code{font-family:ui-monospace,Menlo,Consolas,monospace; color:var(--accent2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+.words{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; max-width:min(620px,90vw)}
+.words .w{padding:.2em .6em; border-radius:8px; background:var(--bg2); line-height:1}
+
+/* persona */
+.persona-emoji{font-size:clamp(90px,26vh,240px); line-height:1; filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
+.persona-title{font-family:var(--display); font-weight:900; font-size:clamp(34px,9vh,92px);
+  background:linear-gradient(120deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+/* flex / share card */
+.card{
+  width:min(560px,90vw); background:var(--bg2); border-radius:24px;
+  padding:clamp(20px,4vh,40px); display:flex; flex-direction:column; gap:18px;
+  border:1px solid rgba(255,255,255,.08); box-shadow:0 30px 80px rgba(0,0,0,.45);
+}
+.card .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.card .stat{background:var(--bg); border-radius:14px; padding:14px}
+.card .stat .n{font-family:var(--display); font-weight:800; font-size:clamp(22px,4vh,34px)}
+.card .stat .l{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em}
+.card .head{display:flex; align-items:center; gap:14px}
+.card .head .e{font-size:46px}
+.credit{font-size:12px; color:var(--muted); letter-spacing:.04em}
+.credit b{color:var(--fg)}
+
+/* nav */
+#bars{position:absolute; top:0; left:0; right:0; display:flex; gap:5px; padding:12px; z-index:20}
+#bars .seg{flex:1; height:3px; background:rgba(255,255,255,.22); border-radius:2px; overflow:hidden}
+#bars .seg i{display:block; height:100%; width:0; background:var(--fg)}
+#bars .seg.done i{width:100%}
+#bars .seg.active i{width:100%; transition:none}
+#hint{position:absolute; bottom:18px; left:0; right:0; text-align:center; color:var(--muted); font-size:12px; z-index:20; opacity:.7}
+#tapL,#tapR{position:absolute; top:0; bottom:0; width:40%; z-index:10; cursor:pointer}
+#tapL{left:0} #tapR{right:0; width:60%}
+
+/* export mode: lock to a fixed card frame for screenshots */
+body.export{position:static; overflow:visible; background:var(--bg)}
+body.export #bars,body.export #hint,body.export #tapL,body.export #tapR{display:none}
+body.export #stage{position:static}
+body.export .scene{position:static; opacity:1!important; transform:none!important; display:none}
+body.export .scene.shot{display:flex}
+body.export.story #stage{width:1080px; height:1920px}
+body.export.story .scene.shot{width:1080px; height:1920px}
+body.export.og #stage{width:1200px; height:630px}
+body.export.og .scene.shot{width:1200px; height:630px}
+/* story: scale the card up to fill the 9:16 frame */
+body.export.story .card{width:920px; padding:60px; gap:34px; border-radius:40px}
+body.export.story .card .head{gap:24px}
+body.export.story .card .head .e{font-size:90px}
+body.export.story .card .head .kicker{font-size:22px}
+body.export.story .card .head div[style]{font-size:48px!important}
+body.export.story .card .stat{padding:30px; border-radius:22px}
+body.export.story .card .stat .n{font-size:58px}
+body.export.story .card .stat .l{font-size:18px}
+body.export.story .card .grid{gap:22px}
+body.export.story .credit{font-size:19px}
+
+@media (prefers-reduced-motion: reduce){
+  .scene,.bar,.hbar .fill{transition:none!important}
+}
+</style>
+</head>
+<body>
+<div id="bars"></div>
+<div id="stage"></div>
+<div id="tapL"></div><div id="tapR"></div>
+<div id="hint">tap or → to advance · ← to go back</div>
+
+<script id="data" type="application/json">
+/* __DATA__ */
+{"repo":"demo/repo","window":{"since":"2025-06-01"},"totals":{"commits":0,"activeDays":0,"longestStreak":0,"linesAdded":0,"linesDeleted":0,"net":0},"time":{"byHour":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"byWeekday":[0,0,0,0,0,0,0],"busiestHour":0,"busiestWeekdayName":"—"},"topLanguages":[],"topFiles":[],"messages":{"topWords":[],"counters":{},"emojiCount":0,"avgLength":0},"derived":{"lateNightShare":0,"weekendShare":0,"busiestHourLabel":"—","topLang":null,"topLangShare":0},"persona":{"emoji":"❓","title":"The Unknown","tagline":"","evidence":""}}
+</script>
+
+<script>
+const D = JSON.parse(document.getElementById("data").textContent);
+const stage = document.getElementById("stage");
+const fmt = (n) => (n ?? 0).toLocaleString();
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+
+function yearLabel(){
+  if (D.window && D.window.label) return D.window.label;
+  const since = (D.window && D.window.since) || "";
+  const y = since.slice(0,4);
+  return y ? `${y}` : "this year";
+}
+
+// ---- scene builders: each returns {node, animate} ----
+const WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const scenes = [];
+const add = (build) => scenes.push(build);
+
+add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker",`${D.repo}`));
+  s.append(el("div","headline",`Your <span class="accent">${yearLabel()}</span><br>in code`));
+  s.append(el("div","sub","A year of commits, told in numbers. Let's go →"));
+  return { node:s };
+});
+
+add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker","You shipped"));
+  const big = el("div","huge","0"); s.append(big);
+  s.append(el("div","headline","commits"));
+  s.append(el("div","sub",`across ${fmt(D.totals.activeDays)} active days`));
+  return { node:s, animate:()=>countUp(big, D.totals.commits) };
+});
+
+add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker","Longest streak"));
+  const big = el("div","huge","0"); s.append(big);
+  s.append(el("div","headline","days in a row 🔥"));
+  s.append(el("div","sub","Consistency compounds."));
+  return { node:s, animate:()=>countUp(big, D.totals.longestStreak) };
+});
+
+if (D.time.byHour.some(x=>x)) add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker","You code most at"));
+  s.append(el("div","persona-title",D.derived.busiestHourLabel));
+  const wrap = el("div"); wrap.style.cssText="display:flex;flex-direction:column;align-items:center";
+  const bars = el("div","bars"); const max = Math.max(1,...D.time.byHour);
+  const els = D.time.byHour.map((v,i)=>{ const b = el("div","bar"); if(i!==D.time.busiestHour) b.classList.add("dim"); b.dataset.h=(v/max*100); return b; });
+  els.forEach(b=>bars.append(b)); wrap.append(bars);
+  s.append(wrap);
+  s.append(el("div","sub",`${D.derived.lateNightShare}% of your commits were between 10pm and 4am`));
+  return { node:s, animate:()=>els.forEach((b,i)=>setTimeout(()=>b.style.height=b.dataset.h+"%", i*12)) };
+});
+
+if (D.time.byWeekday.some(x=>x)) add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker","Your power day"));
+  s.append(el("div","persona-title",D.time.busiestWeekdayName));
+  const bars = el("div","bars"); bars.style.height="26vh";
+  const max = Math.max(1,...D.time.byWeekday);
+  const els = D.time.byWeekday.map((v,i)=>{ const b=el("div","bar"); if(WD[i]!==D.time.busiestWeekdayName.slice(0,3)) b.classList.add("dim"); b.dataset.h=(v/max*100); return b; });
+  els.forEach(b=>bars.append(b)); s.append(bars);
+  const lab = el("div","barlabels"); WD.forEach(d=>lab.append(el("span","",d))); s.append(lab);
+  return { node:s, animate:()=>els.forEach((b,i)=>setTimeout(()=>b.style.height=b.dataset.h+"%", i*60)) };
+});
+
+if (D.totals.linesAdded || D.totals.linesDeleted) add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker","Lines of code"));
+  const r = el("div","row"); r.style.cssText="gap:28px;align-items:baseline";
+  const a = el("div"); a.style.color="var(--accent2)"; a.innerHTML=`<div class="huge" style="-webkit-text-fill-color:initial;background:none;color:var(--accent2);font-size:clamp(48px,12vh,120px)">+0</div><div class="sub">added</div>`;
+  const d = el("div"); d.innerHTML=`<div class="huge" style="-webkit-text-fill-color:initial;background:none;color:var(--muted);font-size:clamp(48px,12vh,120px)">-0</div><div class="sub">deleted</div>`;
+  r.append(a,d); s.append(r);
+  s.append(el("div","sub",`net ${D.totals.net>=0?"+":""}${fmt(D.totals.net)} lines`));
+  return { node:s, animate:()=>{ countUp(a.querySelector(".huge"), D.totals.linesAdded, "+"); countUp(d.querySelector(".huge"), D.totals.linesDeleted, "-"); } };
+});
+
+if (D.topLanguages && D.topLanguages.length){
+  add(() => {
+    const s = el("div","scene");
+    s.append(el("div","kicker","Your languages"));
+    s.append(el("div","headline",`${D.derived.topLang||"Code"} <span class="accent">on top</span>`));
+    const wrap = el("div","hbars");
+    const max = Math.max(1,...D.topLanguages.map(l=>l.lines));
+    const fills=[];
+    D.topLanguages.slice(0,6).forEach(l=>{
+      const row=el("div","hbar");
+      row.append(el("div","",l.name));
+      const track=el("div","track"); const fill=el("div","fill"); fill.dataset.w=(l.lines/max*100); track.append(fill); row.append(track);
+      row.append(el("div","pc",`${fmt(l.lines)}`));
+      wrap.append(row); fills.push(fill);
+    });
+    s.append(wrap);
+    return { node:s, animate:()=>fills.forEach((f,i)=>setTimeout(()=>f.style.width=f.dataset.w+"%", i*90)) };
+  });
+}
+
+if (D.topFiles && D.topFiles.length){
+  add(() => {
+    const s = el("div","scene");
+    s.append(el("div","kicker","Most-touched files"));
+    s.append(el("div","headline","Old <span class=\"accent\">faithful</span>"));
+    const list = el("div","list");
+    D.topFiles.slice(0,6).forEach(f=>{
+      const li=el("div","li");
+      li.append(el("code","",f.file));
+      li.append(el("span","",`${f.commits}×`));
+      list.append(li);
+    });
+    s.append(list);
+    return { node:s };
+  });
+}
+
+if ((D.messages.topWords||[]).length) add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker","Commit message vibes"));
+  const c = D.messages.counters||{};
+  const fixN = c.fix||0;
+  s.append(el("div","headline",`You wrote <span class="accent">"fix"</span><br>${fixN} time${fixN===1?"":"s"}`));
+  const words = el("div","words");
+  (D.messages.topWords||[]).slice(0,10).forEach((w,i)=>{
+    const sp = el("div","w",w.word);
+    sp.style.fontSize = `clamp(14px, ${1.2 + (10-i)*0.22}rem, 3rem)`;
+    sp.style.opacity = (0.55 + (10-i)*0.045).toFixed(2);
+    words.append(sp);
+  });
+  s.append(words);
+  if (D.messages.emojiCount) s.append(el("div","sub",`…and ${D.messages.emojiCount} emoji 🎉`));
+  return { node:s };
+});
+
+add(() => {
+  const s = el("div","scene");
+  s.append(el("div","kicker","Your developer persona"));
+  const e = el("div","persona-emoji",D.persona.emoji); s.append(e);
+  s.append(el("div","persona-title",D.persona.title));
+  s.append(el("div","sub",D.persona.tagline));
+  s.append(el("div","pill",D.persona.evidence));
+  e.style.transform="scale(.4)"; e.style.transition="transform .6s cubic-bezier(.2,1.6,.4,1)";
+  return { node:s, animate:()=>setTimeout(()=>e.style.transform="scale(1)",80) };
+});
+
+// flex / share card (also the screenshot target)
+add(() => {
+  const s = el("div","scene"); s.id="card-scene";
+  const card = el("div","card");
+  const head = el("div","head");
+  head.append(el("div","e",D.persona.emoji));
+  const ht = el("div"); ht.innerHTML=`<div class="kicker">${D.repo} · ${yearLabel()}</div><div style="font-weight:800;font-size:clamp(22px,4vh,30px)">${D.persona.title}</div>`;
+  head.append(ht); card.append(head);
+  const grid = el("div","grid");
+  const stat = (n,l)=>{ const x=el("div","stat"); x.append(el("div","n",n)); x.append(el("div","l",l)); return x; };
+  const cells = [
+    [fmt(D.totals.commits),"commits"],
+    [fmt(D.totals.activeDays),"active days"],
+    [D.totals.longestStreak,"day streak 🔥"],
+    D.derived.busiestHourLabel!=="—" ? [D.derived.busiestHourLabel,"peak hour"]
+                                     : [D.time.busiestWeekdayName,"power day"],
+    D.totals.linesAdded>0 ? ["+"+fmt(D.totals.linesAdded),"lines added"]
+                          : [D.derived.commitsPerActiveDay,"commits / active day"],
+    [D.derived.topLang||"—","top language"],
+  ];
+  cells.forEach(([n,l])=>grid.append(stat(n,l)));
+  card.append(grid);
+  const credit = D.credit || "github.com/&lt;you&gt;/dev-wrapped";
+  card.append(el("div","credit",`made with <b>Dev Wrapped</b> · ${credit}`));
+  s.append(card);
+  return { node:s };
+});
+
+// ---- count-up helper ----
+function countUp(node, target, prefix=""){
+  target = target||0;
+  const dur = 900, t0 = performance.now();
+  const tick = (t)=>{ const p=Math.min(1,(t-t0)/dur); const e=1-Math.pow(1-p,3);
+    node.textContent = prefix + Math.round(target*e).toLocaleString();
+    if(p<1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+
+// ---- controller ----
+const built = scenes.map(b=>b());
+built.forEach(s=>stage.append(s.node));
+const barsWrap = document.getElementById("bars");
+built.forEach(()=>{ const seg=el("div","seg"); seg.append(el("i")); barsWrap.append(seg); });
+const segs = [...barsWrap.children];
+let idx = -1;
+function go(n){
+  if(n<0||n>=built.length) return;
+  if(idx>=0) built[idx].node.classList.remove("active");
+  idx=n;
+  built[idx].node.classList.add("active");
+  segs.forEach((sg,i)=>{ sg.classList.toggle("done", i<idx); sg.classList.toggle("active", i===idx); });
+  const sc=built[idx]; if(sc.animate) sc.animate();
+  location.hash = "s"+idx;
+}
+document.getElementById("tapR").onclick=()=>go(idx+1);
+document.getElementById("tapL").onclick=()=>go(idx-1);
+addEventListener("keydown",e=>{ if(e.key==="ArrowRight"||e.key===" ")go(idx+1); if(e.key==="ArrowLeft")go(idx-1); });
+let sy=0; addEventListener("touchstart",e=>sy=e.touches[0].clientY,{passive:true});
+addEventListener("touchend",e=>{ const dy=sy-e.changedTouches[0].clientY; if(dy>40)go(idx+1); else if(dy<-40)go(idx-1); },{passive:true});
+addEventListener("wheel",(()=>{let lock=0;return e=>{const now=performance.now(); if(now-lock<700)return; if(Math.abs(e.deltaY)<20)return; lock=now; go(idx+(e.deltaY>0?1:-1));};})(),{passive:true});
+
+// export mode: ?export=story|og&scene=card  -> render one frame for screenshot
+const params = new URLSearchParams(location.search);
+if (params.get("export")){
+  document.body.classList.add("export", params.get("export"));
+  const target = params.get("scene")==="card" ? document.getElementById("card-scene") : built[built.length-1].node;
+  target.classList.add("shot","active");
+  built.forEach(s=>{ if(s.animate) s.animate(); });
+} else {
+  const h = parseInt((location.hash.match(/s(\d+)/)||[])[1]);
+  go(Number.isInteger(h)?h:0);
+}
+</script>
+</body>
+</html>

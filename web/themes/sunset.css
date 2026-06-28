@@ -1,0 +1,11 @@
+/* Sunset — warm amber → coral gradient, cream ink. Cozy and shareable. */
+:root{
+  --bg:radial-gradient(120% 130% at 50% 10%, #ff8a3d 0%, #e0426b 55%, #7a1f5c 100%);
+  --bg2:rgba(255,255,255,.12);
+  --fg:#fff7ef; --muted:#ffd9c2;
+  --accent:#ffd166; --accent2:#fff0d2;
+  --display:"Avenir Next","Helvetica Neue",-apple-system,sans-serif;
+  --body:var(--display);
+  --grain:.18;
+}
+.huge,.persona-title{ -webkit-text-fill-color:#fff7ef; background:none; color:#fff7ef; }
