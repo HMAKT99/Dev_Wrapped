@@ -1,0 +1,8 @@
+/* Midnight — deep indigo dark mode, violet → cyan accents. The safe default. */
+:root{
+  --bg:#0b0b12; --bg2:#1a1a28; --fg:#f5f5fa; --muted:#9aa0b5;
+  --accent:#7c5cff; --accent2:#22d3ee;
+  --display:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,sans-serif;
+  --body:var(--display);
+  --grain:.22;
+}

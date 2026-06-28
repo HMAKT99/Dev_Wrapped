@@ -1,0 +1,17 @@
+{
+  "name": "dev-wrapped",
+  "version": "0.1.0",
+  "description": "Turn any git repo or GitHub account into a Spotify-Wrapped-style year-in-review of your coding — a single self-contained HTML file plus shareable PNG cards.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": ["git", "github", "wrapped", "stats", "year-in-review", "claude-code", "skill"],
+  "scripts": {
+    "extract": "node scripts/extract-git-stats.mjs",
+    "persona": "node scripts/compute-persona.mjs",
+    "build": "node scripts/build-wrapped.mjs",
+    "export": "node scripts/export-png.mjs"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

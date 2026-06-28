@@ -1,0 +1,10 @@
+/* Synthwave — retro neon, magenta → cyan over a deep indigo gradient. Loud. */
+:root{
+  --bg:radial-gradient(120% 130% at 50% 0%, #2a1055 0%, #16082e 55%, #0a0418 100%);
+  --bg2:rgba(255,255,255,.06);
+  --fg:#ffe9ff; --muted:#b98fd6;
+  --accent:#ff2d95; --accent2:#19e3ff;
+  --display:"Trebuchet MS",-apple-system,BlinkMacSystemFont,sans-serif;
+  --body:var(--display);
+  --grain:.5;
+}

@@ -1,0 +1,10 @@
+node_modules/
+package-lock.json
+
+# generated artifacts
+stats.json
+dev-wrapped-stats.json
+wrapped.html
+dev-wrapped-*.png
+*.local.*
+.DS_Store
