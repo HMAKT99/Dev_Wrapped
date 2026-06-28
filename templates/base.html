@@ -37,8 +37,8 @@ body{
   opacity:var(--grain);
 }
 .kicker{font-size:clamp(12px,1.6vh,16px); letter-spacing:.28em; text-transform:uppercase; color:var(--muted)}
-.headline{font-family:var(--display); font-weight:800; line-height:1.02; font-size:clamp(28px,7vh,68px); max-width:18ch}
-.huge{font-family:var(--display); font-weight:900; line-height:.9; font-size:clamp(72px,22vh,220px);
+.headline{font-family:var(--display); font-weight:800; line-height:1.02; font-size:clamp(26px,min(7.5vw,7vh),64px); max-width:18ch; overflow-wrap:break-word}
+.huge{font-family:var(--display); font-weight:900; line-height:.9; font-size:clamp(44px,min(19vw,22vh),200px); max-width:100%; overflow-wrap:break-word;
   background:linear-gradient(120deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent}
 .sub{font-size:clamp(15px,2.4vh,24px); color:var(--muted); max-width:26ch}
 .accent{color:var(--accent)}
@@ -72,7 +72,7 @@ body{
 .rarity.common{background:var(--bg2); color:var(--muted)}
 .rarity.rare{background:linear-gradient(90deg,#3b82f6,#06b6d4); color:#fff}
 .rarity.legendary{background:linear-gradient(90deg,#f59e0b,#ef4444); color:#fff; box-shadow:0 6px 20px rgba(245,158,11,.35)}
-.persona-title{font-family:var(--display); font-weight:900; font-size:clamp(34px,9vh,92px);
+.persona-title{font-family:var(--display); font-weight:900; font-size:clamp(28px,min(8.5vw,9vh),84px); max-width:100%; overflow-wrap:break-word; line-height:1.04;
   background:linear-gradient(120deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent}
 
 /* flex / share card */
@@ -212,8 +212,8 @@ if (D.totals.linesAdded || D.totals.linesDeleted) add(() => {
   const s = el("div","scene");
   s.append(el("div","kicker","Lines of code"));
   const r = el("div","row"); r.style.cssText="gap:28px;align-items:baseline";
-  const a = el("div"); a.style.color="var(--accent2)"; a.innerHTML=`<div class="huge" style="-webkit-text-fill-color:initial;background:none;color:var(--accent2);font-size:clamp(48px,12vh,120px)">+0</div><div class="sub">added</div>`;
-  const d = el("div"); d.innerHTML=`<div class="huge" style="-webkit-text-fill-color:initial;background:none;color:var(--muted);font-size:clamp(48px,12vh,120px)">-0</div><div class="sub">deleted</div>`;
+  const a = el("div"); a.style.color="var(--accent2)"; a.innerHTML=`<div class="huge" style="-webkit-text-fill-color:initial;background:none;color:var(--accent2);font-size:clamp(34px,min(12vw,12vh),110px);max-width:100%;overflow-wrap:break-word">+0</div><div class="sub">added</div>`;
+  const d = el("div"); d.innerHTML=`<div class="huge" style="-webkit-text-fill-color:initial;background:none;color:var(--muted);font-size:clamp(34px,min(12vw,12vh),110px);max-width:100%;overflow-wrap:break-word">-0</div><div class="sub">deleted</div>`;
   r.append(a,d); s.append(r);
   s.append(el("div","sub",`net ${D.totals.net>=0?"+":""}${fmt(D.totals.net)} lines`));
   return { node:s, animate:()=>{ countUp(a.querySelector(".huge"), D.totals.linesAdded, "+"); countUp(d.querySelector(".huge"), D.totals.linesDeleted, "-"); } };
