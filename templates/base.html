@@ -141,6 +141,7 @@ const fmt = (n) => (n ?? 0).toLocaleString();
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 
 function yearLabel(){
+  if (D.window && D.window.label) return D.window.label;
   const since = (D.window && D.window.since) || "";
   const y = since.slice(0,4);
   return y ? `${y}` : "this year";
@@ -301,7 +302,8 @@ add(() => {
   ];
   cells.forEach(([n,l])=>grid.append(stat(n,l)));
   card.append(grid);
-  card.append(el("div","credit",`made with <b>Dev Wrapped</b> · github.com/&lt;you&gt;/dev-wrapped`));
+  const credit = D.credit || "github.com/&lt;you&gt;/dev-wrapped";
+  card.append(el("div","credit",`made with <b>Dev Wrapped</b> · ${credit}`));
   s.append(card);
   return { node:s };
 });

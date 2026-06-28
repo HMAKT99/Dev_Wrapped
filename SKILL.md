@@ -48,6 +48,8 @@ Themes: `midnight` (default), `synthwave`, `terminal`, `editorial`, `bubblegum`,
 `node scripts/build-wrapped.mjs --stats stats.json --theme <name> --out wrapped.html`
 Splices the data + chosen theme into `templates/base.html`. Open `wrapped.html` in
 any browser — arrow keys / tap / scroll to advance. Scene catalog: **templates/scenes.md**.
+Optional: `--credit "github.com/<user>/<repo>"` sets the share-card credit link,
+and `--label "Last 12 months"` overrides the date label (otherwise the year).
 
 ### 6. (Optional) Export share cards
 `node scripts/export-png.mjs --html wrapped.html --formats story,og`

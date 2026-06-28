@@ -22,6 +22,8 @@ function parseArgs(argv) {
     else if (argv[i] === "--theme-file") a.themeFile = n();
     else if (argv[i] === "--out") a.out = n();
     else if (argv[i] === "--template") a.template = n();
+    else if (argv[i] === "--credit") a.credit = n();
+    else if (argv[i] === "--label") a.label = n();
   }
   return a;
 }
@@ -37,7 +39,11 @@ function main() {
   const themePath = a.themeFile || path.join(root, "themes", `${a.theme}.css`);
 
   let html = readFileSync(templatePath, "utf8");
-  const data = readFileSync(a.stats, "utf8").trim();
+  // Read stats and optionally patch in a custom credit line / window label.
+  const parsed = JSON.parse(readFileSync(a.stats, "utf8"));
+  if (a.credit) parsed.credit = a.credit;
+  if (a.label) parsed.window = { ...(parsed.window || {}), label: a.label };
+  const data = JSON.stringify(parsed, null, 2);
   let themeCss;
   try {
     themeCss = readFileSync(themePath, "utf8");
