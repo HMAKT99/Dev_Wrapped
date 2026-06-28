@@ -25,6 +25,8 @@ export interface Stats {
   };
   topLanguages: { name: string; lines: number; files: number }[];
   topFiles: { file: string; commits: number }[];
+  topContributors?: { login: string; commits: number }[];
+  repoMeta?: { stars: number; forks: number; contributors: number };
   messages: {
     topWords: { word: string; n: number }[];
     emojiCount: number;
@@ -53,12 +55,16 @@ export interface Derived {
   topLangShare: number;
 }
 
+export type Rarity = "common" | "rare" | "legendary";
+
 export interface Persona {
   id: string;
   title: string;
   emoji: string;
   tagline: string;
   evidence: string;
+  rarity: Rarity;
+  odds?: { count: number; total: number; sharePct: number };
   runnerUp: { id: string; title: string; emoji: string };
 }
 

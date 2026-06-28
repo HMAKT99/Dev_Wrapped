@@ -68,6 +68,10 @@ body{
 
 /* persona */
 .persona-emoji{font-size:clamp(90px,26vh,240px); line-height:1; filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
+.rarity{display:inline-block; padding:.3em .85em; border-radius:999px; font-size:clamp(11px,1.5vh,14px); font-weight:800; letter-spacing:.2em; text-transform:uppercase}
+.rarity.common{background:var(--bg2); color:var(--muted)}
+.rarity.rare{background:linear-gradient(90deg,#3b82f6,#06b6d4); color:#fff}
+.rarity.legendary{background:linear-gradient(90deg,#f59e0b,#ef4444); color:#fff; box-shadow:0 6px 20px rgba(245,158,11,.35)}
 .persona-title{font-family:var(--display); font-weight:900; font-size:clamp(34px,9vh,92px);
   background:linear-gradient(120deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent}
 
@@ -155,7 +159,8 @@ const add = (build) => scenes.push(build);
 add(() => {
   const s = el("div","scene");
   s.append(el("div","kicker",`${D.repo}`));
-  s.append(el("div","headline",`Your <span class="accent">${yearLabel()}</span><br>in code`));
+  const who = D.source==='repo' ? "This repo's" : "Your";
+  s.append(el("div","headline",`${who} <span class="accent">${yearLabel()}</span><br>in code`));
   s.append(el("div","sub","A year of commits, told in numbers. Let's go →"));
   return { node:s };
 });
@@ -251,6 +256,23 @@ if (D.topFiles && D.topFiles.length){
   });
 }
 
+if (D.topContributors && D.topContributors.length){
+  add(() => {
+    const s = el("div","scene");
+    s.append(el("div","kicker","Top contributors"));
+    s.append(el("div","headline","The <span class=\"accent\">crew</span>"));
+    const list = el("div","list");
+    D.topContributors.slice(0,6).forEach((cn,i)=>{
+      const li=el("div","li");
+      li.append(el("span","",`${i+1}. ${cn.login}`));
+      li.append(el("span","",`${fmt(cn.commits)} commits`));
+      list.append(li);
+    });
+    s.append(list);
+    return { node:s };
+  });
+}
+
 if ((D.messages.topWords||[]).length) add(() => {
   const s = el("div","scene");
   s.append(el("div","kicker","Commit message vibes"));
@@ -274,8 +296,10 @@ add(() => {
   s.append(el("div","kicker","Your developer persona"));
   const e = el("div","persona-emoji",D.persona.emoji); s.append(e);
   s.append(el("div","persona-title",D.persona.title));
+  if(D.persona.rarity) s.append(el("div","rarity "+D.persona.rarity, D.persona.rarity));
   s.append(el("div","sub",D.persona.tagline));
   s.append(el("div","pill",D.persona.evidence));
+  if(D.persona.odds) s.append(el("div","sub","Only "+D.persona.odds.sharePct+"% of devs share this persona ✨"));
   e.style.transform="scale(.4)"; e.style.transition="transform .6s cubic-bezier(.2,1.6,.4,1)";
   return { node:s, animate:()=>setTimeout(()=>e.style.transform="scale(1)",80) };
 });
@@ -287,10 +311,21 @@ add(() => {
   const head = el("div","head");
   head.append(el("div","e",D.persona.emoji));
   const ht = el("div"); ht.innerHTML=`<div class="kicker">${D.repo} · ${yearLabel()}</div><div style="font-weight:800;font-size:clamp(22px,4vh,30px)">${D.persona.title}</div>`;
-  head.append(ht); card.append(head);
+  head.append(ht);
+  if(D.persona.rarity && D.persona.rarity!=="common"){ const rb=el("div","rarity "+D.persona.rarity, D.persona.rarity); rb.style.marginLeft="auto"; rb.style.alignSelf="flex-start"; head.append(rb); }
+  card.append(head);
   const grid = el("div","grid");
   const stat = (n,l)=>{ const x=el("div","stat"); x.append(el("div","n",n)); x.append(el("div","l",l)); return x; };
-  const cells = [
+  const rm = D.repoMeta || {};
+  const cells = D.source==='repo' ? [
+    [fmt(D.totals.commits),"commits"],
+    [fmt(rm.contributors||0),"contributors"],
+    ["★ "+fmt(rm.stars||0),"stars"],
+    D.derived.busiestHourLabel!=="—" ? [D.derived.busiestHourLabel,"peak hour"]
+                                     : [D.time.busiestWeekdayName,"power day"],
+    ["+"+fmt(D.totals.linesAdded),"lines added"],
+    [D.derived.topLang||"—","top language"],
+  ] : [
     [fmt(D.totals.commits),"commits"],
     [fmt(D.totals.activeDays),"active days"],
     [D.totals.longestStreak,"day streak 🔥"],

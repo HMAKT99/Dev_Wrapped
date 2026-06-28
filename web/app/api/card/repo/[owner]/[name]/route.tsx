@@ -1,7 +1,6 @@
-// README embed card — compact PNG meant for `![](…/api/card/USER)` in a README.
-// The distribution lever: every embed is a backlink + "make yours" invite.
+// Repo README embed card.
 import { ImageResponse } from "next/og";
-import { getWrappedStats, NotFoundError } from "@/lib/stats";
+import { getWrappedRepoStats, NotFoundError } from "@/lib/stats";
 import { resolveTheme } from "@/lib/themeList";
 import { THEME_COLORS } from "@/lib/themeColors";
 import { windowOpts } from "@/lib/window";
@@ -12,7 +11,7 @@ export const runtime = "edge";
 
 export async function GET(
   req: Request,
-  { params }: { params: { username: string } }
+  { params }: { params: { owner: string; name: string } }
 ) {
   const url = new URL(req.url);
   const theme = resolveTheme(url.searchParams.get("theme"));
@@ -21,7 +20,7 @@ export async function GET(
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/^https?:\/\//, "") || url.host;
 
   try {
-    const stats = await getWrappedStats(params.username, opts);
+    const stats = await getWrappedRepoStats(params.owner, params.name, opts);
     stats.window.label = label;
     if (stats.persona) {
       const odds = await readOdds(stats.persona.id);
@@ -34,14 +33,13 @@ export async function GET(
           colors={THEME_COLORS[theme]}
           themeId={theme}
           variant="readme"
-          credit={`${site}/${params.username}`}
+          credit={`${site}/r/${params.owner}/${params.name}`}
         />
       ),
       {
         ...cardSize("readme"),
         emoji: "twemoji",
         headers: {
-          // README images are camo-proxied by GitHub; allow periodic refresh.
           "cache-control": "public, max-age=0, s-maxage=21600, stale-while-revalidate=86400",
         },
       }

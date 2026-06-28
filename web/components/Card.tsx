@@ -23,13 +23,26 @@ const CFG: Record<Variant, Cfg> = {
 function cells(s: Stats): [string, string][] {
   const d = s.derived!;
   const fmt = (n: number) => n.toLocaleString();
+  const peak: [string, string] =
+    d.busiestHourLabel !== "—"
+      ? [d.busiestHourLabel, "PEAK HOUR"]
+      : [s.time.busiestWeekdayName, "POWER DAY"];
+  if (s.source === "repo") {
+    const rm = s.repoMeta || { stars: 0, contributors: 0, forks: 0 };
+    return [
+      [fmt(s.totals.commits), "COMMITS"],
+      [fmt(rm.contributors), "CONTRIBUTORS"],
+      [fmt(rm.stars), "STARS"],
+      peak,
+      [`+${fmt(s.totals.linesAdded)}`, "LINES ADDED"],
+      [d.topLang || "—", "TOP LANGUAGE"],
+    ];
+  }
   return [
     [fmt(s.totals.commits), "COMMITS"],
     [fmt(s.totals.activeDays), "ACTIVE DAYS"],
     [`${s.totals.longestStreak}`, "DAY STREAK 🔥"],
-    d.busiestHourLabel !== "—"
-      ? [d.busiestHourLabel, "PEAK HOUR"]
-      : [s.time.busiestWeekdayName, "POWER DAY"],
+    peak,
     s.totals.linesAdded > 0
       ? [`+${fmt(s.totals.linesAdded)}`, "LINES ADDED"]
       : [`${d.commitsPerActiveDay}`, "COMMITS / DAY"],
@@ -83,7 +96,27 @@ export function Card({
             <div style={{ display: "flex", color: colors.fg, fontSize: c.title, fontWeight: 800 }}>
               {persona.title}
             </div>
+            {persona.odds && (
+              <div style={{ display: "flex", color: colors.muted, fontSize: c.label, marginTop: 2 }}>
+                Rarer than {(100 - persona.odds.sharePct).toFixed(1)}% of devs
+              </div>
+            )}
           </div>
+          {persona.rarity !== "common" && (
+            <div
+              style={{
+                display: "flex", marginLeft: "auto", alignSelf: "flex-start",
+                padding: "6px 14px", borderRadius: 999, color: "#fff",
+                fontSize: c.label, fontWeight: 800, letterSpacing: 2,
+                background:
+                  persona.rarity === "legendary"
+                    ? "linear-gradient(90deg,#f59e0b,#ef4444)"
+                    : "linear-gradient(90deg,#3b82f6,#06b6d4)",
+              }}
+            >
+              {persona.rarity.toUpperCase()}
+            </div>
+          )}
         </div>
 
         {/* stat grid: explicit rows of 2 */}

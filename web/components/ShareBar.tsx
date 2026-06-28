@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 
 export function ShareBar({
-  user,
-  theme,
-  win,
+  pagePath,
+  cardPath,
+  storyPath,
+  tweetText,
 }: {
-  user: string;
-  theme: string;
-  win?: string;
+  pagePath: string; // e.g. /u/HMAKT99?theme=midnight
+  cardPath: string; // e.g. /api/card/HMAKT99?theme=midnight
+  storyPath: string; // e.g. /api/og/HMAKT99?theme=midnight&format=story
+  tweetText: string;
 }) {
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
@@ -18,12 +20,10 @@ export function ShareBar({
     setOrigin(window.location.origin);
   }, []);
 
-  const q = `theme=${theme}${win ? `&window=${win}` : ""}`;
-  const pageUrl = `${origin}/u/${encodeURIComponent(user)}?${q}`;
-  const cardUrl = `${origin}/api/card/${encodeURIComponent(user)}?${q}`;
-  const storyUrl = `${origin}/api/og/${encodeURIComponent(user)}?${q}&format=story`;
+  const pageUrl = `${origin}${pagePath}`;
+  const cardUrl = `${origin}${cardPath}`;
+  const storyUrl = `${origin}${storyPath}`;
   const readmeSnippet = `[![Dev Wrapped](${cardUrl})](${pageUrl})`;
-  const tweet = `My ${win || "year"} in code, wrapped 🎁`;
 
   async function copy(text: string, key: string) {
     try {
@@ -38,7 +38,7 @@ export function ShareBar({
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <a
           className="btn primary"
-          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}&url=${encodeURIComponent(pageUrl)}`}
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(pageUrl)}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -60,7 +60,6 @@ export function ShareBar({
         </a>
       </div>
 
-      {/* README embed — the distribution lever */}
       <div>
         <div className="muted" style={{ fontSize: 13, marginBottom: 8, letterSpacing: 2 }}>
           ADD TO YOUR README

@@ -1,8 +1,8 @@
-// persona.ts — derive headline metrics + a persona archetype.
-// Ported verbatim (logic-wise) from scripts/compute-persona.mjs.
+// persona.ts — derive headline metrics + a persona archetype (with rarity).
+// Ported (logic-wise) from scripts/compute-persona.mjs.
 // KEEP IN SYNC with that file — the persona table is the product's key asset.
 
-import type { Stats, Derived, Persona } from "./types";
+import type { Stats, Derived, Persona, Rarity } from "./types";
 
 interface Signals {
   lateNightShare: number;
@@ -11,6 +11,7 @@ interface Signals {
   deleteRatio: number;
   linesDeleted: number;
   longestStreak: number;
+  activeDays: number;
   commitsPerActiveDay: number;
   langCount: number;
   topLang: string | null;
@@ -18,6 +19,7 @@ interface Signals {
   avgMsgLen: number;
   fixShare: number;
   fixCount: number;
+  hourSpread: number; // distinct hours with commits (0..24)
 }
 
 const pct = (n: number) => Math.round(n * 100);
@@ -32,67 +34,97 @@ interface Archetype {
   title: string;
   emoji: string;
   tagline: string;
+  rarity: Rarity;
   score: (s: Signals) => number;
   evidence: (s: Signals) => string;
 }
 
+// Order matters only for tie-breaks. Higher score wins; rare/legendary archetypes
+// use larger multipliers so they outrank commons WHEN their condition is truly met.
 const PERSONAS: Archetype[] = [
+  // ---------- legendary ----------
   {
-    id: "night-owl", title: "The Night Owl", emoji: "🦉",
-    tagline: "Your best code happens after dark.",
-    score: (s) => s.lateNightShare * 1.4,
-    evidence: (s) => `${pct(s.lateNightShare)}% of your commits landed between 10pm and 4am.`,
+    id: "centurion", title: "The Centurion", emoji: "🏛️", rarity: "legendary",
+    tagline: "100 days without missing. Iron discipline.",
+    score: (s) => (s.longestStreak >= 100 ? 3 + s.longestStreak / 365 : 0),
+    evidence: (s) => `An unbroken ${s.longestStreak}-day streak. Almost nobody does this.`,
   },
   {
-    id: "early-bird", title: "The Early Bird", emoji: "🌅",
-    tagline: "First to the keyboard, every day.",
-    score: (s) => s.earlyShare * 1.5,
-    evidence: (s) => `${pct(s.earlyShare)}% of your commits happened before 9am.`,
+    id: "ten-xer", title: "The 10×", emoji: "⚡", rarity: "legendary",
+    tagline: "Output that doesn't look real.",
+    score: (s) => (s.commitsPerActiveDay >= 15 ? 2.8 + s.commitsPerActiveDay / 50 : 0),
+    evidence: (s) => `${s.commitsPerActiveDay.toFixed(1)} commits on every active day. A machine among machines.`,
   },
   {
-    id: "weekend-warrior", title: "The Weekend Warrior", emoji: "⚔️",
-    tagline: "Weekends are just extra build time.",
-    score: (s) => s.weekendShare * 1.6,
-    evidence: (s) => `${pct(s.weekendShare)}% of your commits came on Saturdays and Sundays.`,
+    id: "phantom", title: "The Phantom", emoji: "👻", rarity: "legendary",
+    tagline: "There is no hour you don't code.",
+    score: (s) => (s.hourSpread >= 20 ? 2.6 + s.hourSpread / 100 : 0),
+    evidence: (s) => `You committed in ${s.hourSpread} different hours of the day. Do you sleep?`,
+  },
+  // ---------- rare ----------
+  {
+    id: "marathoner", title: "The Marathoner", emoji: "🏃", rarity: "rare",
+    tagline: "You showed up almost every single day.",
+    score: (s) => (s.activeDays >= 250 ? 1.7 + s.activeDays / 365 : 0),
+    evidence: (s) => `${s.activeDays} active days this year. Relentless.`,
   },
   {
-    id: "refactorer", title: "The Refactorer", emoji: "🧹",
+    id: "polymath", title: "The Polymath", emoji: "🧠", rarity: "rare",
+    tagline: "You speak in many tongues.",
+    score: (s) => (s.langCount >= 8 ? 1.6 + s.langCount / 20 : 0),
+    evidence: (s) => `You shipped in ${s.langCount} different languages.`,
+  },
+  {
+    id: "refactorer", title: "The Refactorer", emoji: "🧹", rarity: "rare",
     tagline: "You delete more than you add — and that's a flex.",
     score: (s) => (s.deleteRatio > 0.45 ? s.deleteRatio * 1.3 : 0),
     evidence: (s) => `You removed ${s.linesDeleted.toLocaleString()} lines — ${pct(s.deleteRatio)}% of all the lines you touched.`,
   },
   {
-    id: "streaker", title: "The Streaker", emoji: "🔥",
+    id: "machine", title: "The Machine", emoji: "🤖", rarity: "rare",
+    tagline: "Sheer, relentless output.",
+    score: (s) => Math.min(s.commitsPerActiveDay / 8, 1) * 1.15,
+    evidence: (s) => `You averaged ${s.commitsPerActiveDay.toFixed(1)} commits on every day you showed up.`,
+  },
+  {
+    id: "novelist", title: "The Novelist", emoji: "📖", rarity: "rare",
+    tagline: "Your commit messages tell a story.",
+    score: (s) => (s.avgMsgLen > 55 ? Math.min(s.avgMsgLen / 90, 1) * 1.1 : 0),
+    evidence: (s) => `Your commit messages averaged ${s.avgMsgLen} characters.`,
+  },
+  // ---------- common ----------
+  {
+    id: "night-owl", title: "The Night Owl", emoji: "🦉", rarity: "common",
+    tagline: "Your best code happens after dark.",
+    score: (s) => s.lateNightShare * 1.4,
+    evidence: (s) => `${pct(s.lateNightShare)}% of your commits landed between 10pm and 4am.`,
+  },
+  {
+    id: "early-bird", title: "The Early Bird", emoji: "🌅", rarity: "common",
+    tagline: "First to the keyboard, every day.",
+    score: (s) => s.earlyShare * 1.5,
+    evidence: (s) => `${pct(s.earlyShare)}% of your commits happened before 9am.`,
+  },
+  {
+    id: "weekend-warrior", title: "The Weekend Warrior", emoji: "⚔️", rarity: "common",
+    tagline: "Weekends are just extra build time.",
+    score: (s) => s.weekendShare * 1.6,
+    evidence: (s) => `${pct(s.weekendShare)}% of your commits came on Saturdays and Sundays.`,
+  },
+  {
+    id: "streaker", title: "The Streaker", emoji: "🔥", rarity: "common",
     tagline: "Consistency is your superpower.",
     score: (s) => Math.min(s.longestStreak / 14, 1) * 1.2,
     evidence: (s) => `Your longest streak ran ${s.longestStreak} days straight.`,
   },
   {
-    id: "machine", title: "The Machine", emoji: "🤖",
-    tagline: "Sheer, relentless output.",
-    score: (s) => Math.min(s.commitsPerActiveDay / 8, 1) * 1.1,
-    evidence: (s) => `You averaged ${s.commitsPerActiveDay.toFixed(1)} commits on every day you showed up.`,
-  },
-  {
-    id: "polyglot", title: "The Polyglot", emoji: "🐙",
-    tagline: "You don't pick favorites — you ship in everything.",
-    score: (s) => (s.langCount >= 5 ? Math.min(s.langCount / 8, 1) * 1.1 : 0),
-    evidence: (s) => `You wrote across ${s.langCount} different languages this year.`,
-  },
-  {
-    id: "specialist", title: "The Specialist", emoji: "🎯",
+    id: "specialist", title: "The Specialist", emoji: "🎯", rarity: "common",
     tagline: "One language. Total mastery.",
     score: (s) => (s.topLangShare > 0.7 && s.topLang ? s.topLangShare : 0),
     evidence: (s) => `${pct(s.topLangShare)}% of your code was ${s.topLang}.`,
   },
   {
-    id: "novelist", title: "The Novelist", emoji: "📖",
-    tagline: "Your commit messages tell a story.",
-    score: (s) => (s.avgMsgLen > 55 ? Math.min(s.avgMsgLen / 90, 1) * 1.1 : 0),
-    evidence: (s) => `Your commit messages averaged ${s.avgMsgLen} characters.`,
-  },
-  {
-    id: "gremlin", title: "The Ship-It Gremlin", emoji: "👹",
+    id: "gremlin", title: "The Ship-It Gremlin", emoji: "👹", rarity: "common",
     tagline: '"fix", "fix again", "actually fix it" — and ship.',
     score: (s) => (s.avgMsgLen < 22 || s.fixShare > 0.25 ? 0.9 + s.fixShare : 0),
     evidence: (s) => `${s.fixCount} of your commits were just patching things up. Short messages, fast ships.`,
@@ -120,6 +152,7 @@ export function computePersona(s: Stats): Stats {
     deleteRatio,
     linesDeleted: s.totals.linesDeleted,
     longestStreak: s.totals.longestStreak,
+    activeDays: s.totals.activeDays,
     commitsPerActiveDay: total / (s.totals.activeDays || 1),
     langCount: s.topLanguages.length,
     topLang,
@@ -127,6 +160,7 @@ export function computePersona(s: Stats): Stats {
     avgMsgLen: s.messages.avgLength || 0,
     fixShare: fixCount / total,
     fixCount,
+    hourSpread: byHour.filter((x) => x > 0).length,
   };
 
   const ranked = PERSONAS.map((p) => ({ p, v: p.score(signals) })).sort(
@@ -152,6 +186,7 @@ export function computePersona(s: Stats): Stats {
     emoji: winner.emoji,
     tagline: winner.tagline,
     evidence: winner.evidence(signals),
+    rarity: winner.rarity,
     runnerUp: { id: runnerUp.id, title: runnerUp.title, emoji: runnerUp.emoji },
   };
 
