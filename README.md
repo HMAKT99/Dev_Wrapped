@@ -50,6 +50,19 @@ Drop a live card into any README — it refreshes automatically (no build step):
 Swap `?theme=` for any of: `midnight` · `synthwave` · `terminal` · `editorial` · `bubblegum` · `sunset`.
 Prefer a committed PNG that auto-refreshes on a schedule? Use the [GitHub Action](action/README.md).
 
+## 🔌 Install as a Claude Code plugin
+
+Install Dev Wrapped straight into [Claude Code](https://claude.com/claude-code) — the
+repo is its own plugin marketplace:
+
+```
+/plugin marketplace add HMAKT99/Dev_Wrapped
+/plugin install dev-wrapped@dev-wrapped
+```
+
+Then just ask: *"make a dev wrapped for this repo"* (or for a GitHub user). Prefer to run
+it as a plain CLI instead? See below.
+
 ## 🚀 Quick start (CLI / Claude Code skill)
 
 ```bash

@@ -1,0 +1,14 @@
+{
+  "name": "dev-wrapped",
+  "displayName": "Dev Wrapped",
+  "version": "1.0.0",
+  "description": "Spotify-Wrapped-style year-in-review for any git repo or GitHub account — commits, streaks, top languages, busiest hour, and a developer persona, as a self-contained HTML story plus shareable cards.",
+  "author": {
+    "name": "AKT"
+  },
+  "homepage": "https://dev-wrapped-eight.vercel.app",
+  "repository": "https://github.com/HMAKT99/Dev_Wrapped",
+  "license": "MIT",
+  "keywords": ["github", "wrapped", "year-in-review", "developer-stats", "git", "persona"],
+  "skills": ["./"]
+}

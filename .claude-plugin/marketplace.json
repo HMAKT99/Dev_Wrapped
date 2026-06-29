@@ -1,0 +1,23 @@
+{
+  "name": "dev-wrapped",
+  "owner": {
+    "name": "AKT"
+  },
+  "description": "Dev Wrapped — a Spotify-Wrapped-style year-in-review for developers, installable as a Claude Code skill.",
+  "plugins": [
+    {
+      "name": "dev-wrapped",
+      "source": "./",
+      "displayName": "Dev Wrapped",
+      "version": "1.0.0",
+      "description": "Spotify-Wrapped-style year-in-review for any git repo or GitHub account — commits, streaks, top languages, busiest hour, and a developer persona.",
+      "author": {
+        "name": "AKT"
+      },
+      "homepage": "https://dev-wrapped-eight.vercel.app",
+      "repository": "https://github.com/HMAKT99/Dev_Wrapped",
+      "license": "MIT",
+      "keywords": ["github", "wrapped", "year-in-review", "developer-stats", "git", "persona"]
+    }
+  ]
+}
