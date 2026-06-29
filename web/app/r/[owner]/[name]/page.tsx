@@ -74,8 +74,16 @@ export default function RepoWrappedPage({ params, searchParams }: Props) {
             pagePath={`/r/${owner}/${name}?${q}`}
             cardPath={`/api/card/repo/${owner}/${name}?${q}`}
             storyPath={`/api/og/repo/${owner}/${name}?${q}&format=story`}
-            tweetText={`${slug}'s ${win || "year"} in code, wrapped 🎁`}
+            tweetText={`${slug}'s ${win || "year"} in code, wrapped 🎁 — commits, contributors & velocity. Wrap any repo:`}
           />
+
+          <a
+            className="btn primary"
+            href="/"
+            style={{ textAlign: "center", padding: "12px 18px" }}
+          >
+            ✨ Wrap your own repo
+          </a>
         </div>
       </div>
     </main>

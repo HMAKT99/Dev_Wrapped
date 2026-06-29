@@ -15,15 +15,18 @@ export function ShareBar({
 }) {
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [canNativeShare, setCanNativeShare] = useState(false);
 
   useEffect(() => {
     setOrigin(window.location.origin);
+    setCanNativeShare(typeof navigator !== "undefined" && !!navigator.share);
   }, []);
 
   const pageUrl = `${origin}${pagePath}`;
   const cardUrl = `${origin}${cardPath}`;
   const storyUrl = `${origin}${storyPath}`;
   const readmeSnippet = `[![Dev Wrapped](${cardUrl})](${pageUrl})`;
+  const xIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(pageUrl)}`;
 
   async function copy(text: string, key: string) {
     try {
@@ -33,17 +36,41 @@ export function ShareBar({
     } catch {}
   }
 
+  async function nativeShare() {
+    try {
+      await navigator.share({ title: "Dev Wrapped", text: tweetText, url: pageUrl });
+    } catch {
+      // user cancelled or share failed — no-op
+    }
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <a
-          className="btn primary"
-          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(pageUrl)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Share on X
-        </a>
+        {canNativeShare ? (
+          <button className="btn primary" onClick={nativeShare}>
+            📤 Share my card
+          </button>
+        ) : (
+          <a
+            className="btn primary"
+            href={xIntent}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Share on X
+          </a>
+        )}
+        {canNativeShare && (
+          <a
+            className="btn"
+            href={xIntent}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            X
+          </a>
+        )}
         <a
           className="btn"
           href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`}

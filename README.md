@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://dev-wrapped-eight.vercel.app">
-    <img src="https://dev-wrapped-eight.vercel.app/api/card/HMAKT99?theme=midnight" alt="Dev Wrapped — example card" width="640">
+    <img src="web/public/demo.gif" alt="Dev Wrapped — animated demo of the story + persona reveal" width="300">
   </a>
 </p>
 

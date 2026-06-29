@@ -78,8 +78,16 @@ export default function WrappedPage({ params, searchParams }: Props) {
             pagePath={`/u/${encodeURIComponent(user)}?${q}`}
             cardPath={`/api/card/${encodeURIComponent(user)}?${q}`}
             storyPath={`/api/og/${encodeURIComponent(user)}?${q}&format=story`}
-            tweetText={`My ${win || "year"} in code, wrapped 🎁`}
+            tweetText={`My ${win || "year"} in code, wrapped 🎁 — commits, streaks & my dev persona. What's yours?`}
           />
+
+          <a
+            className="btn primary"
+            href="/"
+            style={{ textAlign: "center", padding: "12px 18px" }}
+          >
+            ✨ Make your own Dev Wrapped
+          </a>
         </div>
       </div>
     </main>

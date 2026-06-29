@@ -64,6 +64,21 @@ export default function Home() {
           commits, streaks, and persona.
         </p>
 
+        <video
+          src="/demo.mp4"
+          poster="/demo-poster.png"
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-label="Dev Wrapped demo"
+          style={{
+            width: 210, maxWidth: "60%", borderRadius: 22, display: "block",
+            border: "1px solid var(--line)", boxShadow: "0 24px 60px rgba(0,0,0,.45)",
+            margin: "4px auto 26px",
+          }}
+        />
+
         {/* user / repo toggle */}
         <div style={{ display: "inline-flex", gap: 4, padding: 4, borderRadius: 12, border: "1px solid var(--line)", marginBottom: 16 }}>
           {(["user", "repo"] as Mode[]).map((m) => (
