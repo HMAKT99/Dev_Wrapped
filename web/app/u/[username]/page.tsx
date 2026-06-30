@@ -7,6 +7,10 @@ type Props = {
   searchParams: { theme?: string; window?: string };
 };
 
+const hiddenWarm: React.CSSProperties = {
+  position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none",
+};
+
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const user = decodeURIComponent(params.username);
   const theme = resolveTheme(searchParams.theme);
@@ -90,6 +94,11 @@ export default function WrappedPage({ params, searchParams }: Props) {
           </a>
         </div>
       </div>
+
+      {/* Pre-warm the edge cache for the share images so they load instantly
+          (and social crawlers don't time out) once the user hits share. */}
+      <img src={`/api/og/${encodeURIComponent(user)}?${q}`} alt="" aria-hidden width={1} height={1} style={hiddenWarm} />
+      <img src={`/api/og/${encodeURIComponent(user)}?${q}&format=story`} alt="" aria-hidden width={1} height={1} style={hiddenWarm} />
     </main>
   );
 }

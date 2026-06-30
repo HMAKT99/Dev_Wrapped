@@ -5,6 +5,7 @@ import { THEME_COLORS } from "@/lib/themeColors";
 import { windowOpts } from "@/lib/window";
 import { readOdds } from "@/lib/personaStats";
 import { Card, cardSize, type Variant } from "@/components/Card";
+import { IMAGE_CACHE_HEADERS } from "@/lib/imageCache";
 
 export const runtime = "edge";
 
@@ -36,7 +37,7 @@ export async function GET(
           credit={`${site}/r/${params.owner}/${params.name}`}
         />
       ),
-      { ...cardSize(variant), emoji: "twemoji" }
+      { ...cardSize(variant), emoji: "twemoji", headers: IMAGE_CACHE_HEADERS }
     );
   } catch (e) {
     const status = e instanceof NotFoundError ? 404 : 502;

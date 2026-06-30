@@ -7,6 +7,10 @@ type Props = {
   searchParams: { theme?: string; window?: string };
 };
 
+const hiddenWarm: React.CSSProperties = {
+  position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none",
+};
+
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const slug = `${params.owner}/${params.name}`;
   const theme = resolveTheme(searchParams.theme);
@@ -86,6 +90,11 @@ export default function RepoWrappedPage({ params, searchParams }: Props) {
           </a>
         </div>
       </div>
+
+      {/* Pre-warm the edge cache for the share images so they load instantly
+          (and social crawlers don't time out) once the user hits share. */}
+      <img src={`/api/og/repo/${owner}/${name}?${q}`} alt="" aria-hidden width={1} height={1} style={hiddenWarm} />
+      <img src={`/api/og/repo/${owner}/${name}?${q}&format=story`} alt="" aria-hidden width={1} height={1} style={hiddenWarm} />
     </main>
   );
 }
