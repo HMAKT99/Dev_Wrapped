@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { siteUrl } from "@/lib/siteUrl";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body>
         <ThemeToggle />
         {children}
+        <Analytics />
       </body>
     </html>
   );
